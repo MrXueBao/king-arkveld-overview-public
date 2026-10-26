@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "notice": "当前仅为界面样例，尚未导入或确认派生关系。",
+  "actions": [
+    {
+      "code": "cRampageBarrage",
+      "name_zh": "三连鞭（快速大砸收尾）",
+      "evidence": [],
+      "video": null
+    },
+    {
+      "code": "cGuardianRushOnlyFinish",
+      "name_zh": "护龙飞天俯冲连段终结（仅四叉地火）",
+      "evidence": [],
+      "video": null
+    }
+  ],
+  "relations": []
+}
