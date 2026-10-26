@@ -1,19 +1,418 @@
 {
-  "schema_version": 1,
-  "notice": "当前仅为界面样例，尚未导入或确认派生关系。",
+  "schema_version": 3,
   "actions": [
     {
-      "code": "cRampageBarrage",
-      "name_zh": "三连鞭（快速大砸收尾）",
-      "evidence": [],
-      "video": null
+      "id": "move-1",
+      "name_zh": "护龙飞天俯冲连段",
+      "code": "cGuardianRush",
+      "video": null,
+      "poster": null
     },
     {
-      "code": "cGuardianRushOnlyFinish",
+      "id": "move-2",
+      "name_zh": "红超解",
+      "code": "cAllWhipCrossAttackOld",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-3",
+      "name_zh": "白超解",
+      "code": "cGuardianPhotonImpact",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-4",
       "name_zh": "护龙飞天俯冲连段终结（仅四叉地火）",
-      "evidence": [],
-      "video": null
+      "code": "cGuardianRushOnlyFinish",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-5",
+      "name_zh": "侧跳单手小砸",
+      "code": "cShortGrappleMoveAttack",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-6",
+      "name_zh": "原地双手非蓄力跳砸",
+      "code": "cLongAllWhipSwing",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-7",
+      "name_zh": "地面快速转向",
+      "code": "cTurnQuick",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-8",
+      "name_zh": "向左快速侧移",
+      "code": "cSideWalkQuickLeft",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-9",
+      "name_zh": "向右快速侧移",
+      "code": "cSideWalkQuickRight",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-10",
+      "name_zh": "双手交替下砸（左手起步）",
+      "code": "cWhipSlamLeftHandDouble",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-11",
+      "name_zh": "双手交替下砸（右手起步）",
+      "code": "cWhipSlamRightHandDouble",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-12",
+      "name_zh": "右甩尾",
+      "code": "cTailWhipSpinAttackRight",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-13",
+      "name_zh": "左甩尾",
+      "code": "cTailWhipSpinAttackLeft",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-14",
+      "name_zh": "铲车",
+      "code": "cNewBladeSlam",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-15",
+      "name_zh": "尾戳",
+      "code": "cTailWhipSlam",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-16",
+      "name_zh": "小咬",
+      "code": "cHeadAttack",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-17",
+      "name_zh": "靠近冲刺",
+      "code": "cDashCombat",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-18",
+      "name_zh": "风压跳起左拉（炸膛态）",
+      "code": "cGrappleLeft",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-19",
+      "name_zh": "风压跳起右拉（炸膛态）",
+      "code": "cGrappleRight",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-20",
+      "name_zh": "刺鞭",
+      "code": "cJabWhip",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-21",
+      "name_zh": "左手甩鞭",
+      "code": "cWhipSlashLeftHand",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-22",
+      "name_zh": "右手甩鞭",
+      "code": "cWhipSlashRightHand",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-23",
+      "name_zh": "飞天拖地（炸膛态）",
+      "code": "cBladeSummerSolt",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-24",
+      "name_zh": "捕食",
+      "code": "cCatchAttack",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-25",
+      "name_zh": "右手拖地前进",
+      "code": "cWhipTurnPullRight",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-26",
+      "name_zh": "左手拖地前进",
+      "code": "cWhipTurnPullLeft",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-27",
+      "name_zh": "飞圆斩",
+      "code": "cDoubleBladeRush",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-28",
+      "name_zh": "向右慢行",
+      "code": "cSidleWalkRight",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-29",
+      "name_zh": "向左慢行",
+      "code": "cSidleWalkLeft",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-30",
+      "name_zh": "左手甩鞭（充能态）",
+      "code": "cWhipSlashLeftHandMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-31",
+      "name_zh": "右手甩鞭（充能态）",
+      "code": "cWhipSlashRightHandMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-32",
+      "name_zh": "双手蓄力大砸",
+      "code": "cAllWhipCrossAttack",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-33",
+      "name_zh": "原地双手非蓄力跳砸（充能态）",
+      "code": "cLongAllWhipSwingMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-34",
+      "name_zh": "升龙（准备接飞天拖地）",
+      "code": "cUpperToSummerSolt",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-35",
+      "name_zh": "升龙",
+      "code": "cUpper",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-36",
+      "name_zh": "升龙（准备接大砸）",
+      "code": "cUpperToRampage",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-37",
+      "name_zh": "升龙（准备接侧跳）",
+      "code": "cUpperToGrapple",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-38",
+      "name_zh": "三连鞭（快速大砸收尾）",
+      "code": "cRampageBarrage",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-39",
+      "name_zh": "三连鞭仅前二鞭",
+      "code": "cRampageBarrageOnlyStart",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-40",
+      "name_zh": "单手接双手下砸连携（右手起步，充能态）",
+      "code": "cKingWhipSlamRightHandDoubleLongMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-41",
+      "name_zh": "单手接双手下砸连携（左手起步，充能态）",
+      "code": "cKingWhipSlamLeftHandDoubleLongMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-42",
+      "name_zh": "后撤步",
+      "code": "cBackStep",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-43",
+      "name_zh": "地爆（充能态）",
+      "code": "cShellAttackMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-44",
+      "name_zh": "右手拖地前进（充能态）",
+      "code": "cWhipTurnPullRightMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-45",
+      "name_zh": "左手拖地前进（充能态）",
+      "code": "cWhipTurnPullLeftMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-46",
+      "name_zh": "假吼停留",
+      "code": "cRoarShortStay",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-47",
+      "name_zh": "落地",
+      "code": "cLanding",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-48",
+      "name_zh": "左手下砸（充能态）",
+      "code": "cWhipSlamLeftHandMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-49",
+      "name_zh": "右手下砸（充能态）",
+      "code": "cWhipSlamRightHandMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-50",
+      "name_zh": "右手下砸",
+      "code": "cWhipSlamRightHand",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-51",
+      "name_zh": "左手下砸",
+      "code": "cWhipSlamLeftHand",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-52",
+      "name_zh": "双手非蓄力下砸（充能态）",
+      "code": "cAllWhipSwingMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-53",
+      "name_zh": "地爆",
+      "code": "cShellAttack",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-54",
+      "name_zh": "假吼",
+      "code": "cRoarShort",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-55",
+      "name_zh": "双手非蓄力下砸",
+      "code": "cAllWhipSwing",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-56",
+      "name_zh": "未命名旧版动作 1（当前无兼容入口）",
+      "code": "cWhipSlamLeftHandDoubleMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-57",
+      "name_zh": "未命名旧版动作 2（当前无兼容入口）",
+      "code": "cWhipSlamRightHandDoubleMax",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-58",
+      "name_zh": "未命名旧版动作 3（当前无兼容入口）",
+      "code": "cKingWhipSlamRightHandDoubleLong",
+      "video": null,
+      "poster": null
+    },
+    {
+      "id": "move-59",
+      "name_zh": "未命名旧版动作 4（当前无兼容入口）",
+      "code": "cKingWhipSlamLeftHandDoubleLong",
+      "video": null,
+      "poster": null
     }
-  ],
-  "relations": []
+  ]
 }

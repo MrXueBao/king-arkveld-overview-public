@@ -1,1 +1,1 @@
-Place only reviewed, self-recorded gameplay MP4 files here. Use the action code as the filename and confirm each clip is safe to publish before committing.
+在这里放置经过检查的自行录制游戏实录 MP4。以公共动作编号（例如 move-1）命名，提交前确认每段素材适合公开。

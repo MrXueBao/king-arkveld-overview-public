@@ -14,7 +14,7 @@ const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
 function rpc(method,params={}){
   return new Promise((resolve,reject)=>{
-    const id=++seq,timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method));},12000);
+    const id=++seq,timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method));},60000);
     pending.set(id,{resolve,reject,timer});
     socket.send(JSON.stringify({id,method,params}));
   });
@@ -33,15 +33,18 @@ async function until(expression){
   const root=path.resolve(__dirname,'..');
   server=http.createServer((req,res)=>{
     const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
-    const file=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
+    if(pathname==='/__reference.html'&&process.env.PUBLIC_SITE_LITE){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(fs.readFileSync(process.env.PUBLIC_SITE_LITE));return;}
+    if(pathname==='/__audited.html'&&process.env.PUBLIC_SITE_AUDITED_LITE){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(fs.readFileSync(process.env.PUBLIC_SITE_AUDITED_LITE));return;}
+    const local=pathname.replace(/^\/project(?=\/)/,'');
+    const file=path.resolve(root,'.'+(local==='/'?'/index.html':local));
     if(!file.startsWith(root+path.sep)){res.writeHead(403);res.end();return;}
     fs.readFile(file,(err,data)=>{
       if(err){res.writeHead(404);res.end();return;}
-      res.setHeader('Content-Type',file.endsWith('.json')?'application/json; charset=utf-8':'text/html; charset=utf-8');res.end(data);
+      res.setHeader('Content-Type',({'.json':'application/json; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.gz':'application/gzip'}[path.extname(file)]||'text/html; charset=utf-8'));res.end(data);
     });
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-  const url=process.env.PUBLIC_SITE_URL||`http://127.0.0.1:${server.address().port}/`;
+  const url=process.env.PUBLIC_SITE_URL||`http://127.0.0.1:${server.address().port}/project/`;
   proc=spawn(browser,['--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--disable-extensions','--disable-background-networking','--remote-debugging-port=0',...(process.env.PUBLIC_SITE_BROWSER_NO_SANDBOX?['--no-sandbox']:[]),'--user-data-dir='+profile,'about:blank'],{windowsHide:true,stdio:'ignore'});
   proc.on('error',error=>console.error(error));
   const activePort=path.join(profile,'DevToolsActivePort');
@@ -60,30 +63,143 @@ async function until(expression){
   });
   await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',reject,{once:true});});
   await rpc('Runtime.enable');await rpc('Page.enable');await rpc('Network.enable');
+  await rpc('Page.addScriptToEvaluateOnNewDocument',{source:'globalThis.__KING_TEST__=true'});
+  const started=Date.now();
   await rpc('Page.navigate',{url});
-  await until(`document.querySelector('#notice')?.textContent.includes('当前仅为界面样例')`);
 
-  assert.equal(await evaluate(`document.querySelectorAll('#actions article').length`),2);
-  assert.equal(await evaluate(`document.querySelectorAll('#relations .relation').length`),0);
-  assert.equal(await evaluate(`document.querySelector('video')===null`),true,'no video should load before a click');
-  assert.equal(await evaluate(`document.body.textContent.includes('三连鞭（快速大砸收尾）')`),true);
-  assert.equal(await evaluate(`document.body.textContent.includes('护龙飞天俯冲连段终结（仅四叉地火）')`),true);
 
-  await evaluate(`document.querySelector('#search').value='GuardianRushOnlyFinish';document.querySelector('#search').dispatchEvent(new Event('input',{bubbles:true}))`);
-  assert.equal(await evaluate(`document.querySelectorAll('#actions article').length`),1,'search filters actions');
-  assert.equal(await evaluate(`document.querySelector('#actions article').dataset.actionCode`),'cGuardianRushOnlyFinish');
+  const errors=[];
+  socket.addEventListener('message',event=>{const m=JSON.parse(event.data);if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails);});
+  await until(`Boolean(window.KingTree)`);
+  const loadMs=Date.now()-started,report={loadMs,presets:{},screenshots:[],deep:[]};
+  const output=process.env.PUBLIC_SITE_ARTIFACTS;
+  if(output)fs.mkdirSync(output,{recursive:true});
+  async function screenshot(name){if(!output)return;const shot=await rpc('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});fs.writeFileSync(path.join(output,name+'.png'),Buffer.from(shot.data,'base64'));report.screenshots.push(name+'.png');}
+  const oracle=process.env.PUBLIC_SITE_ORACLE?require(path.resolve(process.env.PUBLIC_SITE_ORACLE)):null;
+  async function checkChildren(bundle){
+    if(!oracle)return;
+    const snapshot=await evaluate(`(async()=>{const K=KingTree,g=K.bundles.get('${bundle}'),result=await K.collectContinuation(g.records),routes={};for(const record of [...g.records,...result.groups.flatMap(q=>q.records)])for(const id of record.chain){const r=K.data.routes[id];routes[id]={...r,trace:K.path(r.path),cursor:K.data.contexts[r.context]};}return {state:K.getState(),records:g.records,children:result.groups,routes};})()`);
+    report.oracle??=[];report.oracle.push(oracle(snapshot));
+  }
+  await rpc('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
+  assert.equal(await evaluate(`Object.keys(KingTree.data.actions).length`),59);
+  assert.equal(await evaluate(`KingTree.data.model.timers.length`),28);
+  for(const preset of ['m0off','m0max','m1off','m1high','m1low','all']){
+    await evaluate(`document.querySelector('[data-preset="${preset}"]').click()`);
+    const observed=await evaluate(`({pools:[...KingTree.visiblePools().values()].flatMap(p=>[...p.keys()]),priority:KingTree.data.priority_groups.map(g=>[...new Set(KingTree.firstRecords(g.routes).map(x=>KingTree.data.graph.requests[KingTree.data.routes[x.rid].site].actionId))]),weights:[...KingTree.visiblePools().values()].flatMap(p=>[...p.keys()].map(id=>KingTree.data.pools[id].total_weight))})`);
+    observed.entries=await evaluate(`Object.fromEntries(Object.entries(KingTree.data.pools).map(([id,p])=>[id,p.entries.map(e=>({index:e.index,weight:e.raw_weight,actions:[...new Set(KingTree.firstRecords(e.routes).map(x=>KingTree.data.graph.requests[KingTree.data.routes[x.rid].site].actionId))].sort()}))]))`);
+    assert(observed.weights.every(w=>w===100));report.presets[preset]=observed;
+    assert.equal(await evaluate(`document.querySelectorAll('.selector').length>0`),true);
+  }
+  await evaluate(`document.querySelector('[data-preset="m1off"]').click();document.querySelector('.distance').open=true`);
+  await until(`document.querySelectorAll('.entry').length>0`);
+  await screenshot('public_overview');
+  await evaluate(`document.querySelector('#search').value='Whip';KingTree.search()`);
+  assert.equal(await evaluate(`document.querySelectorAll('#results .result').length>0`),true,'English search');
+  await evaluate(`document.querySelector('#search').value='升龙';KingTree.search()`);
+  assert.equal(await evaluate(`document.querySelectorAll('#results .result').length>0`),true,'Chinese search');
+  await evaluate(`document.querySelector('#search').value='';KingTree.search();document.querySelector('#timers').click()`);
+  assert.equal(await evaluate(`document.querySelectorAll('.timer-row').length`),28);
+  await evaluate(`document.querySelector('#close').click()`);
+  // 使用一个真实权重入口定位侧移，截图与 Lite 的首个入口对齐。
+  await evaluate(`document.querySelector('[data-preset="all"]').click();(()=>{const K=KingTree,a=Object.values(K.data.actions).find(a=>K.media.get(a.id).code==='cSideWalkQuickRight'),r=K.data.routes[K.firstRecords(a.first_routes)[0].rid];const records=K.firstRecords(a.first_routes).filter(x=>{const q=K.data.routes[x.rid];return q.pool===r.pool&&q.entry===r.entry&&q.section===r.section;});K.openLocal({id:a.id,records});})()`);
+  await until(`!document.querySelector('#tree .loading')`);
+  await checkChildren(await evaluate(`document.querySelector('#tree > .action').dataset.bundle`));
+  await evaluate(`document.querySelector('#tree').scrollIntoView({block:'start'})`);
+  await screenshot('public_sidestep_selected_entry');
+  // 从真实选招池定位侧移，再沿页面中的动作卡连续展开五个动作。
+  await evaluate(`document.querySelector('[data-preset="all"]').click();document.querySelector('#search').value='cSideWalkQuickLeft';KingTree.search()`);
+  const side=await evaluate(`Object.values(KingTree.data.actions).filter(a=>a.name.includes('快速侧移')).map(a=>a.id)`);
+  assert.equal(side.length,2);
+  for(const actionId of side){
+    const started=Date.now();
+    await evaluate(`(()=>{const D=KingTree.data,a=D.actions['${actionId}'],groups=KingTree.groupRecords(KingTree.firstRecords(a.first_routes));KingTree.openLocal(groups[0]);})()`);
+    await until(`!document.querySelector('#tree .loading')`);
+    const childCodes=await evaluate(`(()=>{const root=document.querySelector('#tree > .action'),resume=root.querySelector(':scope > .children > .resume');return [...resume.querySelectorAll(':scope > .children > .action')].map(n=>n.querySelector(':scope > summary .subtitle').textContent);})()`);
+    assert(childCodes.some(c=>c.includes('HeadAttack')),'side-step -> bite retained: '+childCodes);
+    assert(childCodes.some(c=>c.includes('NewBladeSlam')),'side-step -> catch retained: '+childCodes);
+    report.deep.push({actionId,childCodes,expandMs:Date.now()-started});
+    await checkChildren(await evaluate(`document.querySelector('#tree > .action').dataset.bundle`));
+    await evaluate(`document.querySelector('#tree').scrollIntoView({block:'start'})`);
+    await screenshot('public_'+actionId+'_sidestep');
+  }
+  let current=await evaluate(`document.querySelector('#tree > .action').dataset.bundle`);
+  for(let depth=1;depth<=5;depth++){
+    const detail=await evaluate(`(()=>{const n=document.querySelector('[data-bundle="${current}"]');n.open=true;return n.querySelector(':scope > summary .subtitle').textContent;})()`);
+    await until(`!document.querySelector('[data-bundle="${current}"] .loading')`);
+    report.deep.push({depth,code:detail});
+    await checkChildren(current);
+    if(depth<5){
+      const visible=await evaluate(`(()=>{const n=document.querySelector('[data-bundle="${current}"]'),r=n.querySelector(':scope > .children > .resume');return [...r.querySelectorAll(':scope > .children > .action')].map(x=>x.dataset.action);})()`);
+      const queried=await evaluate(`(async()=>{const K=KingTree,r=await K.collectContinuation(K.bundles.get('${current}').records);return r.groups.map(g=>g.id);})()`);
+      assert.deepEqual(visible,queried,'visible action cards must retain all compatible results at depth '+depth);
+    }
+    assert.equal(await evaluate(`document.querySelectorAll('.variant,.action-group').length`),0,'no behavioral interaction layer');
+    if(depth===5)break;
+    const next=await evaluate(`(()=>{const n=document.querySelector('[data-bundle="${current}"]'),r=n.querySelector(':scope > .children > .resume');const choices=[...r.querySelectorAll(':scope > .children > .action')];const q=choices.find(x=>/HeadAttack|NewBladeSlam/.test(x.querySelector('.subtitle').textContent))||choices[0];return q?.dataset.bundle;})()`);
+    assert(next,'continuous successor at depth '+depth);current=next;
+  }
+  await evaluate(`document.querySelector('[data-bundle="${current}"]').scrollIntoView({block:'center'})`);
+  await screenshot('public_five_actions');
+  await evaluate(`document.querySelector('[data-bundle="${current}"] .children button').click()`);
+  await until(`!document.querySelector('#tree .loading')`);
+  assert.equal(await evaluate(`KingTree.getView().type`),'local');
+  await evaluate(`document.querySelector('#back').click()`);
+  assert.equal(await evaluate(`document.querySelectorAll('.variant').length`),0);
+  assert.equal(await evaluate(`/0x[0-9a-f]+|[0-9a-f]{8}-[0-9a-f]{4}-/i.test(document.body.textContent)`),false);
+  assert.equal(await evaluate(`/行为见证|预编译|路径见证|父上下文|调用现场|C2|PC认证|生命周期|实录|保存行|搜索预算|完整路径/.test(document.body.textContent)`),false);
+  await rpc('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await evaluate(`window.scrollTo(0,0)`);
+  assert.equal(await evaluate(`document.documentElement.scrollWidth<=window.innerWidth`),true,'mobile viewport overflow');
+  await screenshot('public_mobile');
+  // 媒体接口仅在点击后挂载视频，不认证实际视频解码。
+  await evaluate(`(()=>{const id=Object.keys(KingTree.data.actions)[0],m=KingTree.media.get(id);m.video='./media/videos/test.mp4';const host=document.createElement('div');host.id='test-media';document.body.append(host);KingTree.renderMedia(host,id);})()`);
+  assert.equal(await evaluate(`document.querySelector('#test-media video')===null`),true);
+  await evaluate(`document.querySelector('#test-media button').click()`);
+  assert.equal(await evaluate(`document.querySelector('#test-media video source').getAttribute('src')`),'./media/videos/test.mp4');
+  await evaluate(`document.querySelector('#test-media').remove()`);
+  assert.deepEqual(errors,[],'uncaught browser errors');
+  if(process.env.PUBLIC_SITE_LITE){
+    await rpc('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
+    await rpc('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/__reference.html`});
+    await until(`Boolean(window.KingOverview)`);
+    report.lite={};
+    const mappings=process.env.PUBLIC_SITE_MAP?JSON.parse(fs.readFileSync(process.env.PUBLIC_SITE_MAP,'utf8')).map:null;
+    const entriesExpression=`(()=>{const K=KingOverview,D=K.data,N=D.graph.nodes,E=Object.fromEntries(D.graph.edges.map(e=>[e.id,e])),s=K.getState();const ok=id=>K.match(id).ok&&K.path(id).every(([eid])=>{const e=E[eid],n=N[e?.source],a=n?.arg;if(!e?.type.startsWith('predicate_'))return true;const relevant=['cCheckModeArg','cCheckElementChargeMax','cCheckDistanceArg'].includes(a?.type)||a?.type==='cCheckStatusArg'&&['Health','Status'].includes(a.selected);if(!relevant)return true;const v=K.engine.evaluate(a,s,n.table+':'+n.address);return v===null||v===(e.type==='predicate_true');});return Object.fromEntries(Object.entries(D.pools).map(([id,p])=>[id,p.entries.map(e=>({index:e.index,weight:e.raw_weight,actions:[...new Set(e.routes.filter(id=>ok(D.routes[id].path)).map(id=>D.graph.requests[D.routes[id].site].action_guid))]}))]));})()`;
+    const mapEntries=entries=>Object.fromEntries(Object.entries(entries).map(([id,rows])=>[mappings[id],rows.map(e=>({...e,actions:e.actions.map(x=>mappings[x]).sort()}))]));
+    for(const preset of ['m0off','m0max','m1off','m1high','m1low','all']){
+      await evaluate(`document.querySelector('[data-preset="${preset}"]').click();document.querySelector('.priority').open=true`);
+      await delay(30);
+      await evaluate(`document.querySelectorAll('.priority .guards').forEach(g=>g.open=true)`);
+      await delay(30);
+      const observed=await evaluate(`(()=>{const K=KingOverview,D=K.data,state=K.getState(),N=D.graph.nodes,E=Object.fromEntries(D.graph.edges.map(e=>[e.id,e]));const ok=id=>{if(!K.match(id).ok)return false;for(const [eid] of K.path(id)){const e=E[eid],n=N[e?.source],a=n?.arg;if(!e?.type.startsWith('predicate_'))continue;const relevant=['cCheckModeArg','cCheckElementChargeMax','cCheckDistanceArg'].includes(a?.type)||a?.type==='cCheckStatusArg'&&['Health','Status'].includes(a.selected);if(!relevant)continue;const value=K.engine.evaluate(a,state,n.table+':'+n.address);if(value!==null&&value!==(e.type==='predicate_true'))return false;}return true;};return {pools:[...new Set(D.initial.filter(r=>ok(r.path)).map(r=>r.pool))],priority:[...document.querySelectorAll('.priority .guards')].map(g=>[...new Set([...g.querySelectorAll('.action')].map(n=>n.dataset.action))])};})()`);
+      report.lite[preset]=observed;
+      const liteEntries=await evaluate(entriesExpression);
+      if(mappings){const mapped=mapEntries(liteEntries);report.olderLiteDifferences??=[];for(const [pool,entries] of Object.entries(mapped))for(const e of entries){const actual=report.presets[preset].entries[pool].find(a=>a.index===e.index);if(JSON.stringify(actual)!==JSON.stringify(e))report.olderLiteDifferences.push({preset,pool,index:e.index,visible:report.presets[preset].pools.includes(pool),older:e.actions,current:actual.actions});}}
+      if(mappings){assert.deepEqual([...new Set(report.presets[preset].pools)].sort(),observed.pools.map(x=>mappings[x]).sort(),preset+' Lite pools');const actual=report.presets[preset].priority.filter(g=>g.length);assert.deepEqual(actual,observed.priority.map(g=>g.map(x=>mappings[x])),preset+' priority order');}
+    }
+    await evaluate(`document.querySelector('[data-preset="m1off"]').click();document.querySelector('.distance').open=true;window.scrollTo(0,0)`);
+    await delay(200);await screenshot('lite_overview');
+    await evaluate(`document.querySelector('[data-preset="all"]').click();(()=>{const K=KingOverview,D=K.data,a=Object.values(D.actions).find(a=>a.name==='cSideWalkQuickRight');const rid=a.first_routes.find(id=>K.match(D.routes[id].path).ok);K.locate(rid);})()`);
+    await delay(300);
+    await screenshot('lite_sidestep');
+    await evaluate(`(()=>{const a=document.querySelector('.action.focused');a?.querySelector(':scope > .children > .resume')?.setAttribute('open','');})()`);
+    await delay(1000);
+    await evaluate(`document.querySelector('.action.focused > .children > .resume')?.scrollIntoView({block:'start'})`);
+    await screenshot('lite_sidestep_followups');
+    if(process.env.PUBLIC_SITE_AUDITED_LITE&&mappings){
+      await rpc('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/__audited.html`});await until(`Boolean(window.KingOverview)`);
+      report.auditedEntryParity=[];
+      for(const preset of ['m0off','m0max','m1off','m1high','m1low','all']){
+        await evaluate(`document.querySelector('[data-preset="${preset}"]').click()`);
+        const mapped=mapEntries(await evaluate(entriesExpression));
+        assert.deepEqual(report.presets[preset].entries,mapped,preset+' all entry weights/action groups must match current audited Lite');report.auditedEntryParity.push(preset);
+      }
+    }
+  }
+  if(output)fs.writeFileSync(path.join(output,'browser_result.json'),JSON.stringify(report,null,2)+'\n');
+  console.log('PASS: Lite-style hierarchy, priority/pool comparison, Chinese/English search, timer names, five actions, both sidesteps -> HeadAttack/NewBladeSlam, local/back, no research UI, nested URL, mobile, lazy media; load '+loadMs+' ms');
 
-  await evaluate(`document.querySelector('#search').value='三连鞭';document.querySelector('#search').dispatchEvent(new Event('input',{bubbles:true}))`);
-  assert.equal(await evaluate(`document.querySelectorAll('#actions article').length`),1,'Chinese search filters actions');
-  assert.equal(await evaluate(`document.querySelector('#actions article').dataset.actionCode`),'cRampageBarrage');
-  await evaluate(`dataset.relations=[{from:'cRampageBarrage',to:'cGuardianRushOnlyFinish',condition:'TEST ONLY',evidence:'TEST ONLY'}];render()`);
-  assert.equal(await evaluate(`document.querySelectorAll('#relations .relation').length`),1,'temporary fixture renders a relation');
-  assert.equal(await evaluate(`document.querySelectorAll('#actions article .relation').length`),1,'temporary fixture renders an outgoing action');
-  await evaluate(`dataset.relations=[];render()`);
-
-  await evaluate(`document.querySelector('#search').value='';document.querySelector('#search').dispatchEvent(new Event('input',{bubbles:true}));dataset.actions[0].video='./media/videos/smoke.mp4';render();document.querySelector('#actions article button').click()`);
-  await until(`Boolean(document.querySelector('video source')?.src.endsWith('/media/videos/smoke.mp4'))`);
-  console.log('PASS: public labels, Chinese/code search, empty derivation state, relation fixture, and click-to-load video UI');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(async()=>{
   if(socket){socket.close();}
   if(proc)proc.kill();

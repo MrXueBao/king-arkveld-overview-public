@@ -1,4 +1,4 @@
-# Deny by default. Only explicitly reviewed site files and media are trackable.
+# 默认忽略全部文件，仅允许明确列出的站点文件与媒体进入版本控制。
 /*
 !/README.md
 !/index.html
@@ -8,9 +8,16 @@
 !/data/
 !/media/
 !/tests/
+!/assets/
+
+/assets/*
+!/assets/site.css
+!/assets/tree.js
+!/assets/query-engine.js
 
 /data/*
 !/data/actions.json
+!/data/decision-tree.json.gz
 
 /tests/*
 !/tests/smoke_browser.js

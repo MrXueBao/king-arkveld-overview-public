@@ -1,68 +1,26 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="历战王锁刃龙动作名称与派生关系浏览器">
-  <title>KING 锁刃龙动作派生总览</title>
-  <style>
-    :root{color-scheme:light;--bg:#f2f4f4;--paper:#fff;--ink:#233335;--muted:#637778;--line:#dbe4e2;--green:#087b68;--tint:#e8f4ee;--amber:#925715;--amberbg:#fff4df;--blue:#416d9b}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Segoe UI","Microsoft YaHei",sans-serif}header{background:#142f2d;color:#eaf4ed;padding:22px max(20px,calc((100vw - 1200px)/2))}h1{font-size:24px;margin:0}header p{margin:5px 0 0;color:#b6d3c8}main{max-width:1200px;margin:auto;padding:22px}.notice{border:1px solid #e7c989;background:var(--amberbg);color:#714511;border-radius:9px;padding:12px 15px;margin-bottom:16px}.toolbar{display:flex;gap:10px;margin:14px 0}.toolbar input{width:100%;border:1px solid #cad7d3;border-radius:8px;padding:11px 13px;background:#fff;font:inherit}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px}.card{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px;min-width:0}.card h2{font-size:18px;line-height:1.4;margin:0}.code{font:12px/1.5 Consolas,monospace;color:var(--muted);overflow-wrap:anywhere;margin-top:5px}.badges{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.badge{display:inline-block;padding:2px 8px;background:#edf2f1;color:#516d66;border-radius:5px;font-size:12px}.badge.blue{background:#eaf1fa;color:var(--blue)}.badge.amber{background:var(--amberbg);color:var(--amber)}button{font:inherit;cursor:pointer;border:1px solid #cbdad5;border-radius:7px;background:#fff;color:var(--green);padding:7px 11px}button:hover{background:var(--tint);border-color:var(--green)}button:disabled{cursor:default;color:var(--muted);background:#f5f7f6}.section-title{font-size:18px;margin:25px 0 9px}.relations{display:grid;gap:8px}.relation{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff}.relation .arrow{color:var(--green);font-weight:700;margin:0 8px}.media{margin-top:12px}.media video{display:block;width:100%;max-height:360px;background:#101817;border-radius:8px}.poster{display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;background:linear-gradient(135deg,#203b37,#69877a);color:#eef5ef;border-radius:8px;margin:8px 0;font-size:13px}.empty{color:var(--muted);padding:18px;border:1px dashed var(--line);border-radius:8px}.footer{margin:30px 0 8px;color:var(--muted);font-size:12px}.error{color:#8c3026}
-    @media(max-width:600px){main{padding:14px}header{padding:18px 15px}.toolbar{margin:10px 0}}
-  </style>
-</head>
-<body>
-  <header>
-    <h1>KING 锁刃龙动作派生总览</h1>
-    <p>浏览经过审核的动作名称、派生关系与动作演示</p>
-  </header>
-  <main>
-    <div id="notice" class="notice" role="status">正在读取公开动作目录…</div>
-    <div class="toolbar"><input id="search" type="search" aria-label="搜索中文名或动作代号" placeholder="搜索中文名或动作代号" autocomplete="off"></div>
-    <h2 class="section-title">动作</h2>
-    <section id="actions" class="grid" aria-live="polite"></section>
-    <h2 class="section-title">派生关系</h2>
-    <section id="relations" class="relations"></section>
-    <p class="footer">非官方玩家研究项目，与 Capcom 无隶属关系。页面内容只代表所列证据等级；静态派生关系不等同于实战中必然发生。</p>
-  </main>
-  <script>
-  'use strict';
-  const $=id=>document.getElementById(id),actionsHost=$('actions'),relationsHost=$('relations');
-  let dataset={actions:[],relations:[]};
-  const esc=s=>String(s??'');
-  function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
-  function render(){
-    const q=$('search').value.trim().toLowerCase();actionsHost.replaceChildren();relationsHost.replaceChildren();
-    const actions=dataset.actions.filter(a=>(a.code+' '+a.name_zh).toLowerCase().includes(q));
-    if(!actions.length)actionsHost.append(el('div','empty','没有匹配的动作。'));
-    for(const a of actions){
-      const card=el('article','card');card.dataset.actionCode=esc(a.code);
-      card.append(el('h2','',esc(a.name_zh)),el('div','code',esc(a.code)));
-      const badges=el('div','badges');for(const label of a.evidence||[])badges.append(el('span','badge blue',label));
-      if(!a.evidence?.length)badges.append(el('span','badge','证据标签待审核'));card.append(badges);
-      const media=el('div','media');
-      if(a.video){
-        const poster=el('div','poster','动作演示 · 点击后加载视频');media.append(poster);
-        const play=el('button','', '播放动作演示');play.type='button';play.addEventListener('click',()=>{
-          if(media.querySelector('video'))return;
-          const v=document.createElement('video');v.controls=true;v.playsInline=true;v.muted=true;v.preload='none';if(a.poster)v.poster=a.poster;
-          const source=document.createElement('source');source.src=a.video;source.type='video/mp4';v.append(source);poster.replaceWith(v);play.textContent='视频已加载';play.disabled=true;v.load();v.play().catch(()=>{});
-        });media.append(play);
-      }else media.append(el('div','empty','动作演示素材待添加。公开视频只在点击播放后加载。'));
-      card.append(media);
-      const outgoing=(dataset.relations||[]).filter(r=>r.from===a.code);
-      if(outgoing.length){const h=el('h3','','已整理的后续');card.append(h);for(const r of outgoing){const target=dataset.actions.find(x=>x.code===r.to);if(!target)continue;const row=el('div','relation');row.append(el('span','',target.name_zh),el('span','code',target.code));if(r.condition)row.append(el('span','badge amber',r.condition));card.append(row);}}
-      else card.append(el('p','empty','派生关系尚未导入；此空白是骨架状态，不代表没有后续动作。'));
-      actionsHost.append(card);
-    }
-    const links=(dataset.relations||[]).filter(r=>actions.some(a=>a.code===r.from)||actions.some(a=>a.code===r.to));
-    if(!links.length)relationsHost.append(el('div','empty','暂无经过审核的派生关系。'));
-    for(const r of links){const from=dataset.actions.find(a=>a.code===r.from),to=dataset.actions.find(a=>a.code===r.to);if(!from||!to)continue;const row=el('div','relation');row.append(el('strong','',from.name_zh),el('span','arrow','→'),el('strong','',to.name_zh));if(r.condition)row.append(el('div','badge amber',r.condition));if(r.evidence)row.append(el('div','badge blue',r.evidence));relationsHost.append(row);}
-  }
-  $('search').addEventListener('input',render);
-  fetch('./data/actions.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();}).then(data=>{
-    dataset=data;render();const note=data.notice||'公开动作目录已加载。';$('notice').textContent=note;
-  }).catch(error=>{$('notice').textContent='公开动作目录加载失败：'+error.message;$('notice').classList.add('error');actionsHost.append(el('div','empty','请通过本地 HTTP 服务或 GitHub Pages 打开此页面。'));});
-  </script>
-</body>
-</html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="历战王锁刃龙静态AI决策查询：中文招式、选招条件、Timer与多层派生">
+<title>KING AI · 历战王锁刃龙决策总览</title>
+<link rel="stylesheet" href="./assets/site.css"><script src="./assets/query-engine.js" defer></script><script src="./assets/tree.js" defer></script>
+</head><body>
+<header><div><div class="eyebrow" style="color:#a7c8b5">历战王锁刃龙</div><h1>KING AI · 竞速决策总览</h1><p>先看这一轮如何选招，再沿具体动作查看条件派生</p></div><div class="version">公开版 · 静态决策查询</div></header>
+<div class="layout"><aside class="sidebar"><div class="eyebrow">QUERY STATE</div><h2>当前选招状态</h2>
+<p class="note">普通攻击后保留 Mode、Charge；其他动态条件重新判断。</p>
+<div class="presets"><button data-preset="m0max">Mode0 MAX</button><button data-preset="m1high">Mode1 MAX 高血</button><button data-preset="m1low">Mode1 MAX 低血</button><button data-preset="m0off">Mode0 非MAX</button><button data-preset="m1off">Mode1 非MAX</button><button data-preset="all">全部状态</button></div>
+<div class="fields"><label class="field">HP %<input id="hp" type="number" min="0" max="100" step="0.1" value="70" placeholder="不限定"></label>
+<label class="field">Mode<select id="mode"><option value="">不限定</option><option value="0">0</option><option value="1" selected>1</option></select></label>
+<label class="field">Charge<select id="charge"><option value="">不限定</option><option value="true">MAX</option><option value="false" selected>非 MAX</option></select></label>
+<label class="field">愤怒<select id="angry"><option value="">不限定</option><option value="true" selected>是</option><option value="false">否</option></select></label>
+<label class="field">AI XZ 距离<input id="distance" type="number" min="0" step="0.1" placeholder="全部距离"></label>
+<label class="field">相对角度 °<input id="angle" type="number" step="1" placeholder="上下文参考"></label>
+<label class="field">Chain 枚举<select id="chain"><option value="">未知</option><option value="0">0 · TWO</option><option value="1">1 · THREE_RIGHT</option><option value="2">2 · THREE_LEFT</option><option value="3">3 · FOUR</option></select></label></div>
+<details class="evidence-inline"><summary>更多查询选项</summary><p>范围为历战王、非疲劳，初始采用地面姿态与默认距离缩放。</p><p>角度和 Chain 与 Lite 一样作为上下文参考，不额外排除动作。</p><label><input type="checkbox" id="conservative"> 包含状态变化后的其他条件场景</label></details>
+<button id="apply" class="primary full">应用状态</button><button id="timers" class="full">Timer 名称</button></aside>
+<main><div class="toolbar"><div><div class="eyebrow">DECISION OVERVIEW</div><h2 id="view-title" style="margin-bottom:0">从自由态开始</h2></div><nav aria-label="视图导航"><button id="back">← 上一视图</button><button id="home">总览</button></nav></div>
+<div class="searchbox"><input id="search" type="search" aria-label="搜索招式" placeholder="搜索中文招式或英文动作代号"><button id="find" class="primary">定位</button></div>
+<div class="quick"><button data-search="NewBladeSlam">铲车</button><button data-search="RampageBarrage">三连鞭</button><button data-search="WhipSlashLeftHandMax">低血甩鞭</button><button data-search="UpperToGrapple">升龙</button><button data-search="BladeSummerSolt">飞天拖地</button><button id="all-actions">全部招式</button></div>
+<div id="results"></div><div class="legend"><span>选招条件 / 动作</span><span>假设正常完成后</span><span>原始权重</span></div><div id="caption" class="state-caption"></div><div id="banner" class="breadcrumbs"></div>
+<div id="tree"><div class="loading">读取查询数据…</div></div><div class="footer">静态条件候选不代表必定连携。原始权重不等于实际出招概率。非官方玩家研究项目，与 Capcom 无隶属关系。</div></main></div>
+<div id="overlay" class="overlay"><section class="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title"><div class="panelhead"><h2 id="panel-title"></h2><button id="close">关闭 ✕</button></div><div id="panel-body"></div></section></div>
+</body></html>

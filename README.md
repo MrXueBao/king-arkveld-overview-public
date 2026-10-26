@@ -1,44 +1,59 @@
-# KING Arkveld Overview (public site starter)
+# 历战王锁刃龙 · 动作派生树
 
-An unofficial fan-made static site for browsing reviewed KING Arkveld action names and derivation relationships.
+中文招式搜索、状态筛选、原始权重与多层条件派生。界面沿用 KING Overview Lite 的折叠树：自由态 → 前置优先判定／普通选招 → 条件分区 → 权重入口 → 动作 → 假设正常完成后的后续。
 
-This directory is intentionally separate from the local research workspace. It contains a small site shell and a public-data example only. It does **not** contain the full Overview HTML, C2/Atlas inputs, raw addresses, request GUIDs, call stacks, timer tables, probe logs, or spreadsheets.
+点开动作即可查看后续动作，无需选择行为见证。同名动作合为一张卡，后台仍分别保留入口、参数和 Timer 历史，按各自的完整入口链查询。可连续展开五个动作，再通过「查看该动作的局部后续」继续浏览或返回。
 
-## Local preview
+## 本地打开
 
-Serve this directory over HTTP (the page fetches its public JSON data):
+在站点目录中运行：
 
 ```powershell
-python -m http.server 8000
+python -m http.server 8000 --bind 127.0.0.1
 ```
 
-Then open <http://localhost:8000>.
+浏览器打开 <http://127.0.0.1:8000/>，保持终端运行；按 `Ctrl+C` 停止。更新后可用 `Ctrl+F5` 刷新。
 
-## Browser smoke test
+请使用新版 Chrome、Edge 或 Firefox。页面通过 HTTP 读取压缩数据，不能直接双击 HTML。无需安装网站依赖或运行构建命令。当前仅准备本地版本，未启用 GitHub Pages。
 
-With Node.js 22+ and Microsoft Edge installed, run `node tests/smoke_browser.js`.
-The test starts its own local server and checks names, search, empty derivation messaging,
-relationship rendering with temporary test data, and click-to-load video controls.
-It does not certify MP4 playback until actual media has been added.
-Set `PUBLIC_SITE_BROWSER` to use another Chromium executable.
-In this restricted local environment, the verified invocation used Chrome with
-`PUBLIC_SITE_BROWSER_NO_SANDBOX=1`; that switch applies only to this test process,
-not to the website or visitors' browsers.
+## 浏览方式
 
-## GitHub Pages
+- 用快捷预设或手动设置 Mode、Charge、HP、愤怒和距离；Mode1 非MAX预设为 HP70%。角度、Chain 保持 Lite 的上下文参考方式。
+- 按调用顺序展开前置流程，或从普通选招的距离／条件分区展开权重入口。
+- 搜索中文名称或英文动作代号，在总览定位或选择入口查看局部后续。
+- 展开动作直接查看「假设正常完成后」的可选动作；点击条件中的 Timer 查看中文名和配置值。
+- 深层派生可进入局部视图，保留实际入口链，并可返回之前的视图。
 
-The site is plain HTML, CSS, JavaScript, JSON, and optional media. For a user or organization Pages site, publish the repository root from the default branch. For a project site, publish the root or `/docs` folder according to the repository's Pages settings. Keep the repository private while reviewing; publishing Pages from a private repository depends on the account's GitHub plan and Pages visibility settings.
+## 查询说明
 
-Before changing the repository to public, inspect every tracked file and the commit history. Removing a file in a later commit does not remove it from earlier public Git history.
+范围为历战王非疲劳战斗。普通攻击后保留 Mode、Charge；其他动态条件沿用既有重新判断逻辑。明确矛盾的路线不显示，未知动态条件继续作为条件候选保留。静态候选不代表必定连携，原始权重也不等于最终出招概率。Timer 配置值不附加单位，不预测剩余时间。
 
-## Public data boundary
+公开版仅提供静态决策查询，不含实录研究模块。59种动作记录不代表都能在当前状态到达；尚无验收中文名的旧动作保留英文代号。
 
-Only place reviewed, intentionally public material here. The data schema is for user-facing action codes, Chinese labels, high-level derivation links, and evidence categories. Do not copy the internal research index into this site. The action list currently contains UI examples only; no derivation claims have been imported.
+## 文件与媒体
 
-The included names are examples supplied for the interface. The game and its names remain the property of their respective owners. This fan project is not affiliated with or endorsed by Capcom.
+- `index.html`、`assets/site.css`：Lite 风格界面与折叠树布局。
+- `assets/tree.js`：搜索、入口集合展示、连续派生与局部导航。
+- `assets/query-engine.js`：条件评价及字段传播查询。
+- `data/decision-tree.json.gz`：经裁剪并转换为中性索引的查询图。
+- `data/actions.json`：中文招式名、英文代号及可选媒体路径。
+- `media/`：自行录制 MP4 和封面接口，见[媒体说明](media/README.md)。视频在点击播放后加载，目前未附真实视频。
+- `tests/smoke_browser.js`：真实 Chromium 浏览器测试。
 
-## Demonstration media
+导出时移除原生 GUID、地址、请求位置原值、参数原值、资源路径、实录和审计统计。计算需要的区别使用中性索引保留，研究输入与编号对照留在本地站点之外。英文动作代号是公开招式名称的一部分。前端数据均可下载。
 
-The UI loads an MP4 only after the visitor asks to play it. Prefer short, silent, self-recorded gameplay captures, encoded as H.264 MP4, and keep a static poster available. Do not extract animation/video assets from game archives. Media placed in this repository is publicly downloadable; GitHub Pages is static hosting, not protected streaming.
+## 浏览器测试
 
-See `media/README.md` for the proposed media format and file layout.
+安装 Node.js 22+ 与 Microsoft Edge 后运行：
+
+```powershell
+node tests/smoke_browser.js
+```
+
+可用环境变量 `PUBLIC_SITE_BROWSER` 指定其他 Chromium 浏览器；`PUBLIC_SITE_ARTIFACTS` 指定截图和结果目录。测试覆盖状态预设、权重、中文／英文搜索、Timer、左右快速侧移的后续、连续五个动作、局部返回、手机布局、子目录资源加载与媒体按需挂载。真实 MP4 解码尚未测试。
+
+## 部署与项目声明
+
+网站为纯静态文件，可部署于 GitHub Pages 项目子目录，无需服务端或前端构建。确认公开时将站点目录内容放在发布根目录，并保留 `.nojekyll`。完整研究资料、Lite 原页与对照截图不属于站点发布内容。
+
+非官方玩家研究项目，与 Capcom 无隶属或授权关系。游戏及相关名称的权利归各自权利人所有。

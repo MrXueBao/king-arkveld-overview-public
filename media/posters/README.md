@@ -1,1 +1,1 @@
-Place the reviewed poster image for each public gameplay clip here. Prefer WebP or JPEG and use the action code as the filename.
+在这里放置动作实录的封面图。优先使用 WebP 或 JPEG，以公共动作编号（例如 move-1）命名；提交前确认素材适合公开。
