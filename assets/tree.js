@@ -228,18 +228,85 @@ function showTimers() {
     input.oninput = draw; draw();
   });
 }
+let actionPlayer = null, actionVideo = null, actionPlayerTitle = null, actionPlayerSpeedButtons = [], actionPlayerVariants = null, actionPlayerNote = null;
+// 部分动作按 Mode / HP 有不同演示；按当前已应用的全局筛选选片，筛选为「不限定」时用默认片段。
+const variantMatches = (when, s) => Object.entries(when).every(([k, v]) =>
+  k === 'hp_gte' ? s.hp !== undefined && s.hp >= v : k === 'hp_lt' ? s.hp !== undefined && s.hp < v : s[k] === v);
+function mediaVariants(id) {
+  const m = media.get(id);
+  return m?.variants?.length ? m.variants : m?.video ? [{video: m.video, poster: m.poster}] : [];
+}
+function pickVariant(id) {
+  const list = mediaVariants(id), hit = list.findIndex(v => v.when && variantMatches(v.when, state));
+  return hit >= 0 ? hit : Math.max(0, list.findIndex(v => v.video === media.get(id)?.video));
+}
+function ensureActionPlayer() {
+  if (actionPlayer) return;
+  actionPlayer = el('section', 'action-player'); actionPlayer.id = 'action-player';
+  actionPlayer.setAttribute('role', 'region'); actionPlayer.setAttribute('aria-label', '动作演示播放器'); actionPlayer.hidden = true;
+  const head = el('div', 'action-player-head'), heading = el('div', 'action-player-heading');
+  actionPlayerTitle = el('strong', 'action-player-title'); actionPlayerTitle.id = 'action-player-title';
+  actionPlayerNote = el('p', 'action-player-note'); actionPlayerNote.hidden = true;
+  heading.append(actionPlayerTitle, actionPlayerNote);
+  const controls = el('div', 'action-player-controls');
+  actionPlayerSpeedButtons = [0.5, 1].map(rate => {
+    const speed = btn(rate === 0.5 ? '0.5×' : '1×', () => setActionPlayerSpeed(rate), 'mini');
+    speed.setAttribute('aria-label', '播放速度 ' + (rate === 0.5 ? '0.5 倍' : '正常速度'));
+    speed.setAttribute('aria-pressed', String(rate === 1)); speed.dataset.rate = rate;
+    controls.append(speed); return speed;
+  });
+  const close = btn('关闭 ✕', closeActionPlayer, 'mini'); close.setAttribute('aria-label', '关闭动作演示');
+  head.append(heading, controls, close);
+  actionVideo = el('video', 'action-player-video'); actionVideo.controls = true;
+  actionVideo.muted = true; actionVideo.playsInline = true; actionVideo.loop = true; actionVideo.preload = 'none';
+  actionVideo.setAttribute('aria-label', '动作演示视频');
+  actionPlayerVariants = el('div', 'action-player-variants'); actionPlayerVariants.setAttribute('role', 'group');
+  actionPlayerVariants.setAttribute('aria-label', '演示版本'); actionPlayerVariants.hidden = true;
+  actionPlayer.append(head, actionPlayerVariants, actionVideo); $('action-player-root').append(actionPlayer);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !actionPlayer.hidden) closeActionPlayer();
+  });
+}
+function setActionPlayerSpeed(rate) {
+  if (!actionVideo) return;
+  actionVideo.playbackRate = rate;
+  for (const button of actionPlayerSpeedButtons) button.setAttribute('aria-pressed', String(Number(button.dataset.rate) === rate));
+}
+function closeActionPlayer() {
+  if (!actionPlayer || actionPlayer.hidden) return;
+  actionVideo.pause(); actionVideo.removeAttribute('src'); actionVideo.removeAttribute('poster'); actionVideo.load();
+  actionPlayer.hidden = true; actionPlayer.removeAttribute('data-action'); actionPlayer.removeAttribute('data-variant');
+}
+function openActionPlayer(id, index = pickVariant(id)) {
+  const list = mediaVariants(id), m = list[index]; if (!m?.video) return;
+  ensureActionPlayer();
+  actionVideo.pause(); actionVideo.removeAttribute('src');
+  actionPlayerTitle.textContent = actionName(id) + ' · ' + id + (m.label ? ' · ' + m.label : '');
+  actionPlayerNote.textContent = m.note || ''; actionPlayerNote.hidden = !m.note;
+  actionPlayerVariants.replaceChildren(...(list.length > 1 ? list.map((v, i) => {
+    const b = btn(v.label, () => openActionPlayer(id, i), 'mini');
+    b.setAttribute('aria-pressed', String(i === index)); b.dataset.variant = i; return b;
+  }) : []));
+  actionPlayerVariants.hidden = list.length < 2;
+  if (m.poster) actionVideo.poster = m.poster; else actionVideo.removeAttribute('poster');
+  actionPlayer.dataset.action = id; actionPlayer.dataset.variant = index; actionPlayer.hidden = false;
+  setActionPlayerSpeed(1);
+  actionVideo.src = m.video; actionVideo.load(); actionVideo.play().catch(() => {});
+}
+function previewButton(id) {
+  if (!media.get(id)?.video) return null;
+  const button = btn('▶ 预览', () => openActionPlayer(id), 'mini preview-button');
+  button.setAttribute('aria-label', '预览动作演示：' + actionName(id));
+  button.dataset.previewAction = id;
+  return button;
+}
 function renderMedia(host, id) {
-  const m = media.get(id); if (!m?.video) return;
-  const box = el('div', 'media'), poster = el('div', 'poster', '动作演示 · 点击后加载');
+  if (!media.get(id)?.video) return;
+  const m = mediaVariants(id)[pickVariant(id)];
+  const box = el('div', 'media'), poster = el('div', 'poster', '动作演示 · 点击预览');
   if (m.poster) { const image = el('img'); image.src = m.poster; image.alt = actionName(id) + '封面'; image.loading = 'lazy'; poster.replaceChildren(image); }
   box.append(poster);
-  const play = btn('播放动作演示', () => {
-    if (box.querySelector('video')) return;
-    const video = el('video'); video.controls = true; video.playsInline = true; video.muted = true; video.preload = 'none';
-    if (m.poster) video.poster = m.poster;
-    const source = el('source'); source.src = m.video; source.type = 'video/mp4'; video.append(source);
-    poster.replaceWith(video); play.disabled = true; video.load(); video.play().catch(() => {});
-  });
+  const play = btn('在共享播放器中播放', () => openActionPlayer(id));
   box.append(play); host.append(box);
 }
 
@@ -255,6 +322,8 @@ function renderAction(host, g, level, key, depth = 1, open = false) {
     }
     branch(body, level + 1, key + '/resume', 'resume', '假设正常完成后', '', box => renderContinuation(box, g.records, level + 2, key + '/next', depth + 1), true);
   }, open);
+  const preview = previewButton(g.id);
+  if (preview) d.querySelector(':scope > summary').append(preview);
   d.dataset.action = g.id; d.dataset.bundle = bundleKey;
   return d;
 }
@@ -510,6 +579,6 @@ document.querySelectorAll('[data-preset]').forEach(b => b.onclick = () => {
   apply();
 });
 // 仅由测试环境在页面加载前显式请求测试接口；普通页面不挂载调试入口。
-if (globalThis.__KING_TEST__) globalThis.KingTree = {data: D, path, match, profile, displayMatch, status, stages, grouped, groupRecords, firstRecords, collectContinuation, ensureContinuation, visiblePools, render, apply, search, indexedRecords, renderMedia, media, bundles, openLocal, getState: () => state, getView: () => view};
+if (globalThis.__KING_TEST__) globalThis.KingTree = {data: D, path, match, profile, displayMatch, status, stages, grouped, groupRecords, firstRecords, collectContinuation, ensureContinuation, visiblePools, render, apply, search, indexedRecords, renderMedia, renderAction, openActionPlayer, closeActionPlayer, media, bundles, openLocal, getState: () => state, getView: () => view};
 render();
 })().catch(error => { document.getElementById('tree').textContent = '加载失败，请使用新版浏览器并检查网站文件。'; console.error(error); });

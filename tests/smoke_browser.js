@@ -33,6 +33,11 @@ async function until(expression){
   const root=path.resolve(__dirname,'..');
   server=http.createServer((req,res)=>{
     const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+    const testVideo=pathname==='/__test-media/1.mp4'?process.env.PUBLIC_SITE_TEST_VIDEO_1:
+      pathname==='/__test-media/2.mp4'?process.env.PUBLIC_SITE_TEST_VIDEO_2:null;
+    if(testVideo){
+      fs.readFile(testVideo,(err,data)=>{if(err){res.writeHead(404);res.end();return;}res.writeHead(200,{'Content-Type':'video/mp4','Content-Length':data.length});res.end(data);});return;
+    }
     if(pathname==='/__reference.html'&&process.env.PUBLIC_SITE_LITE){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(fs.readFileSync(process.env.PUBLIC_SITE_LITE));return;}
     if(pathname==='/__audited.html'&&process.env.PUBLIC_SITE_AUDITED_LITE){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(fs.readFileSync(process.env.PUBLIC_SITE_AUDITED_LITE));return;}
     const local=pathname.replace(/^\/project(?=\/)/,'');
@@ -152,12 +157,41 @@ async function until(expression){
   await evaluate(`window.scrollTo(0,0)`);
   assert.equal(await evaluate(`document.documentElement.scrollWidth<=window.innerWidth`),true,'mobile viewport overflow');
   await screenshot('public_mobile');
-  // 媒体接口仅在点击后挂载视频，不认证实际视频解码。
-  await evaluate(`(()=>{const id=Object.keys(KingTree.data.actions)[0],m=KingTree.media.get(id);m.video='./media/videos/test.mp4';const host=document.createElement('div');host.id='test-media';document.body.append(host);KingTree.renderMedia(host,id);})()`);
-  assert.equal(await evaluate(`document.querySelector('#test-media video')===null`),true);
-  await evaluate(`document.querySelector('#test-media button').click()`);
-  assert.equal(await evaluate(`document.querySelector('#test-media video source').getAttribute('src')`),'./media/videos/test.mp4');
-  await evaluate(`document.querySelector('#test-media').remove()`);
+  // 媒体预览使用页面共享播放器：按钮只在有 video 时出现，点击不展开卡片，点击后才挂载唯一 video。
+  await evaluate(`(()=>{
+    const ids=Object.keys(KingTree.data.actions).slice(0,2);
+    ids.forEach((id,i)=>KingTree.media.get(id).video='/__test-media/'+(i+1)+'.mp4');
+    const host=document.createElement('div');host.id='test-media';document.body.append(host);
+    ids.forEach(id=>{const a=KingTree.data.actions[id],g=KingTree.groupRecords(KingTree.firstRecords(a.first_routes))[0];KingTree.renderAction(host,g,1,'test/'+id);});
+  })()`);
+  assert.equal(await evaluate(`document.querySelectorAll('#test-media .preview-button').length`),2,'preview button only for actions with video');
+  assert.equal(await evaluate(`document.querySelector('#test-media video')===null`),true,'no video before preview');
+  assert.equal(await evaluate(`Boolean(document.querySelector('#test-media .preview-button'))`),true,'preview button exists');
+  const firstOpen=await evaluate(`document.querySelector('#test-media .action').open`);
+  await evaluate(`document.querySelector('#test-media .preview-button').click()`);
+  assert.equal(await evaluate(`document.querySelector('#test-media .action').open`),firstOpen,'preview does not toggle card');
+  assert.equal(await evaluate(`document.querySelectorAll('#action-player video').length`),1,'video appears after preview');
+  assert.equal(await evaluate(`document.querySelector('#action-player video').getAttribute('src')`),'/__test-media/1.mp4');
+  if(process.env.PUBLIC_SITE_TEST_VIDEO_1)await until(`document.querySelector('#action-player video').readyState>=1`);
+  await evaluate(`document.querySelectorAll('#test-media .preview-button')[1].click()`);
+  assert.equal(await evaluate(`document.querySelectorAll('#action-player video').length`),1,'one shared player');
+  assert.equal(await evaluate(`document.querySelector('#action-player video').getAttribute('src')`),'/__test-media/2.mp4');
+  if(process.env.PUBLIC_SITE_TEST_VIDEO_2)await until(`document.querySelector('#action-player video').readyState>=1`);
+  // 变体按已应用的全局 Mode 选片；播放器内可手动切换。
+  const savedMode=await evaluate(`document.getElementById('mode').value`);
+  await evaluate(`(()=>{const id=Object.keys(KingTree.data.actions)[0],m=KingTree.media.get(id);
+    m.variants=[{label:'Mode 0',when:{mode:0},video:'/__test-media/1.mp4'},{label:'Mode 1',when:{mode:1},video:'/__test-media/2.mp4',note:'test note'}];
+    document.getElementById('mode').value='1';KingTree.apply();KingTree.openActionPlayer(id);})()`);
+  assert.equal(await evaluate(`document.querySelector('#action-player video').getAttribute('src')`),'/__test-media/2.mp4','variant follows Mode 1');
+  assert.equal(await evaluate(`document.querySelectorAll('#action-player .action-player-variants button').length`),2,'variant buttons');
+  assert.equal(await evaluate(`document.querySelector('#action-player .action-player-note').hidden`),false,'variant note shown');
+  await evaluate(`document.querySelector('#action-player .action-player-variants button[data-variant="0"]').click()`);
+  assert.equal(await evaluate(`document.querySelector('#action-player video').getAttribute('src')`),'/__test-media/1.mp4','manual variant switch');
+  await evaluate(`(()=>{const id=Object.keys(KingTree.data.actions)[0];document.getElementById('mode').value='0';KingTree.apply();KingTree.openActionPlayer(id);})()`);
+  assert.equal(await evaluate(`document.querySelector('#action-player video').getAttribute('src')`),'/__test-media/1.mp4','variant follows Mode 0');
+  assert.equal(await evaluate(`document.querySelector('#action-player .action-player-note').hidden`),true,'note hidden without note');
+  await evaluate(`(()=>{const id=Object.keys(KingTree.data.actions)[0];delete KingTree.media.get(id).variants;document.getElementById('mode').value=${JSON.stringify(savedMode)};KingTree.apply();})()`);
+  await evaluate(`document.querySelector('#test-media').remove();KingTree.closeActionPlayer()`);
   assert.deepEqual(errors,[],'uncaught browser errors');
   if(process.env.PUBLIC_SITE_LITE){
     await rpc('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});

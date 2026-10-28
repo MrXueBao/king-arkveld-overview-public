@@ -5,43 +5,43 @@
       "id": "move-1",
       "name_zh": "护龙飞天俯冲连段",
       "code": "cGuardianRush",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-1.mp4",
+      "poster": "./media/posters/move-1.webp"
     },
     {
       "id": "move-2",
       "name_zh": "红超解",
       "code": "cAllWhipCrossAttackOld",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-2.mp4",
+      "poster": "./media/posters/move-2.webp"
     },
     {
       "id": "move-3",
       "name_zh": "白超解",
       "code": "cGuardianPhotonImpact",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-3.mp4",
+      "poster": "./media/posters/move-3.webp"
     },
     {
       "id": "move-4",
       "name_zh": "护龙飞天俯冲连段终结（仅四叉地火）",
       "code": "cGuardianRushOnlyFinish",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-4.mp4",
+      "poster": "./media/posters/move-4.webp"
     },
     {
       "id": "move-5",
       "name_zh": "侧跳单手小砸",
       "code": "cShortGrappleMoveAttack",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-5.mp4",
+      "poster": "./media/posters/move-5.webp"
     },
     {
       "id": "move-6",
       "name_zh": "原地双手非蓄力跳砸",
       "code": "cLongAllWhipSwing",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-6.mp4",
+      "poster": "./media/posters/move-6.webp"
     },
     {
       "id": "move-7",
@@ -54,64 +54,64 @@
       "id": "move-8",
       "name_zh": "向左快速侧移",
       "code": "cSideWalkQuickLeft",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-8.mp4",
+      "poster": "./media/posters/move-8.webp"
     },
     {
       "id": "move-9",
       "name_zh": "向右快速侧移",
       "code": "cSideWalkQuickRight",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-9.mp4",
+      "poster": "./media/posters/move-9.webp"
     },
     {
       "id": "move-10",
       "name_zh": "双手交替下砸（左手起步）",
       "code": "cWhipSlamLeftHandDouble",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-10.mp4",
+      "poster": "./media/posters/move-10.webp"
     },
     {
       "id": "move-11",
       "name_zh": "双手交替下砸（右手起步）",
       "code": "cWhipSlamRightHandDouble",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-11.mp4",
+      "poster": "./media/posters/move-11.webp"
     },
     {
       "id": "move-12",
       "name_zh": "右甩尾",
       "code": "cTailWhipSpinAttackRight",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-12.mp4",
+      "poster": "./media/posters/move-12.webp"
     },
     {
       "id": "move-13",
       "name_zh": "左甩尾",
       "code": "cTailWhipSpinAttackLeft",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-13.mp4",
+      "poster": "./media/posters/move-13.webp"
     },
     {
       "id": "move-14",
       "name_zh": "铲车",
       "code": "cNewBladeSlam",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-14.mp4",
+      "poster": "./media/posters/move-14.webp"
     },
     {
       "id": "move-15",
       "name_zh": "尾戳",
       "code": "cTailWhipSlam",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-15.mp4",
+      "poster": "./media/posters/move-15.webp"
     },
     {
       "id": "move-16",
       "name_zh": "小咬",
       "code": "cHeadAttack",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-16.mp4",
+      "poster": "./media/posters/move-16.webp"
     },
     {
       "id": "move-17",
@@ -124,71 +124,71 @@
       "id": "move-18",
       "name_zh": "风压跳起左拉（炸膛态）",
       "code": "cGrappleLeft",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-18.mp4",
+      "poster": "./media/posters/move-18.webp"
     },
     {
       "id": "move-19",
       "name_zh": "风压跳起右拉（炸膛态）",
       "code": "cGrappleRight",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-19.mp4",
+      "poster": "./media/posters/move-19.webp"
     },
     {
       "id": "move-20",
       "name_zh": "刺鞭",
       "code": "cJabWhip",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-20.mp4",
+      "poster": "./media/posters/move-20.webp"
     },
     {
       "id": "move-21",
       "name_zh": "左手甩鞭",
       "code": "cWhipSlashLeftHand",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-21.mp4",
+      "poster": "./media/posters/move-21.webp"
     },
     {
       "id": "move-22",
       "name_zh": "右手甩鞭",
       "code": "cWhipSlashRightHand",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-22.mp4",
+      "poster": "./media/posters/move-22.webp"
     },
     {
       "id": "move-23",
       "name_zh": "飞天拖地（炸膛态）",
       "code": "cBladeSummerSolt",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-23.mp4",
+      "poster": "./media/posters/move-23.webp"
     },
     {
       "id": "move-24",
       "name_zh": "捕食",
       "code": "cCatchAttack",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-24.mp4",
+      "poster": "./media/posters/move-24.webp"
     },
     {
       "id": "move-25",
       "name_zh": "右手拖地前进",
       "code": "cWhipTurnPullRight",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-25.mp4",
+      "poster": "./media/posters/move-25.webp"
     },
     {
       "id": "move-26",
       "name_zh": "左手拖地前进",
       "code": "cWhipTurnPullLeft",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-26.mp4",
+      "poster": "./media/posters/move-26.webp"
     },
     {
       "id": "move-27",
       "name_zh": "飞圆斩",
       "code": "cDoubleBladeRush",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-27.mp4",
+      "poster": "./media/posters/move-27.webp"
     },
     {
       "id": "move-28",
@@ -208,120 +208,175 @@
       "id": "move-30",
       "name_zh": "左手甩鞭（充能态）",
       "code": "cWhipSlashLeftHandMax",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-30.mp4",
+      "poster": "./media/posters/move-30.webp",
+      "variants": [
+        {
+          "label": "HP ≥ 50%",
+          "when": {
+            "hp_gte": 50
+          },
+          "video": "./media/videos/move-30.mp4",
+          "poster": "./media/posters/move-30.webp"
+        },
+        {
+          "label": "HP < 50%",
+          "when": {
+            "hp_lt": 50
+          },
+          "video": "./media/videos/move-30-hplow.mp4",
+          "poster": "./media/posters/move-30-hplow.webp"
+        }
+      ]
     },
     {
       "id": "move-31",
       "name_zh": "右手甩鞭（充能态）",
       "code": "cWhipSlashRightHandMax",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-31.mp4",
+      "poster": "./media/posters/move-31.webp",
+      "variants": [
+        {
+          "label": "HP < 50%",
+          "when": {
+            "hp_lt": 50
+          },
+          "video": "./media/videos/move-31.mp4",
+          "poster": "./media/posters/move-31.webp"
+        },
+        {
+          "label": "HP ≥ 50%（镜像）",
+          "when": {
+            "hp_gte": 50
+          },
+          "video": "./media/videos/move-30.mp4",
+          "poster": "./media/posters/move-30.webp",
+          "note": "右手版暂无 50% 以上素材，这里播放镜像动作左手版（move-30）。"
+        }
+      ]
     },
     {
       "id": "move-32",
       "name_zh": "双手蓄力大砸",
       "code": "cAllWhipCrossAttack",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-32.mp4",
+      "poster": "./media/posters/move-32.webp"
     },
     {
       "id": "move-33",
       "name_zh": "原地双手非蓄力跳砸（充能态）",
       "code": "cLongAllWhipSwingMax",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-33.mp4",
+      "poster": "./media/posters/move-33.webp"
     },
     {
       "id": "move-34",
       "name_zh": "升龙（准备接飞天拖地）",
       "code": "cUpperToSummerSolt",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-34.mp4",
+      "poster": "./media/posters/move-34.webp"
     },
     {
       "id": "move-35",
       "name_zh": "升龙",
       "code": "cUpper",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-35.mp4",
+      "poster": "./media/posters/move-35.webp"
     },
     {
       "id": "move-36",
       "name_zh": "升龙（准备接大砸）",
       "code": "cUpperToRampage",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-36.mp4",
+      "poster": "./media/posters/move-36.webp"
     },
     {
       "id": "move-37",
       "name_zh": "升龙（准备接侧跳）",
       "code": "cUpperToGrapple",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-37.mp4",
+      "poster": "./media/posters/move-37.webp"
     },
     {
       "id": "move-38",
       "name_zh": "三连鞭（快速大砸收尾）",
       "code": "cRampageBarrage",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-38.mp4",
+      "poster": "./media/posters/move-38.webp"
     },
     {
       "id": "move-39",
       "name_zh": "三连鞭仅前二鞭",
       "code": "cRampageBarrageOnlyStart",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-39.mp4",
+      "poster": "./media/posters/move-39.webp"
     },
     {
       "id": "move-40",
       "name_zh": "单手接双手下砸连携（右手起步，充能态）",
       "code": "cKingWhipSlamRightHandDoubleLongMax",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-40.mp4",
+      "poster": "./media/posters/move-40.webp"
     },
     {
       "id": "move-41",
       "name_zh": "单手接双手下砸连携（左手起步，充能态）",
       "code": "cKingWhipSlamLeftHandDoubleLongMax",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-41.mp4",
+      "poster": "./media/posters/move-41.webp"
     },
     {
       "id": "move-42",
       "name_zh": "后撤步",
       "code": "cBackStep",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-42.mp4",
+      "poster": "./media/posters/move-42.webp"
     },
     {
       "id": "move-43",
       "name_zh": "地爆（充能态）",
       "code": "cShellAttackMax",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-43.mp4",
+      "poster": "./media/posters/move-43.webp",
+      "variants": [
+        {
+          "label": "Mode 0",
+          "when": {
+            "mode": 0
+          },
+          "video": "./media/videos/move-43.mp4",
+          "poster": "./media/posters/move-43.webp"
+        },
+        {
+          "label": "Mode 1",
+          "when": {
+            "mode": 1
+          },
+          "video": "./media/videos/move-43-mode1.mp4",
+          "poster": "./media/posters/move-43-mode1.webp"
+        }
+      ]
     },
     {
       "id": "move-44",
       "name_zh": "右手拖地前进（充能态）",
       "code": "cWhipTurnPullRightMax",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-44.mp4",
+      "poster": "./media/posters/move-44.webp"
     },
     {
       "id": "move-45",
       "name_zh": "左手拖地前进（充能态）",
       "code": "cWhipTurnPullLeftMax",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-45.mp4",
+      "poster": "./media/posters/move-45.webp"
     },
     {
       "id": "move-46",
       "name_zh": "假吼停留",
       "code": "cRoarShortStay",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-46.mp4",
+      "poster": "./media/posters/move-46.webp"
     },
     {
       "id": "move-47",
@@ -348,15 +403,15 @@
       "id": "move-50",
       "name_zh": "右手下砸",
       "code": "cWhipSlamRightHand",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-50.mp4",
+      "poster": "./media/posters/move-50.webp"
     },
     {
       "id": "move-51",
       "name_zh": "左手下砸",
       "code": "cWhipSlamLeftHand",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-51.mp4",
+      "poster": "./media/posters/move-51.webp"
     },
     {
       "id": "move-52",
@@ -376,8 +431,8 @@
       "id": "move-54",
       "name_zh": "假吼",
       "code": "cRoarShort",
-      "video": null,
-      "poster": null
+      "video": "./media/videos/move-54.mp4",
+      "poster": "./media/posters/move-54.webp"
     },
     {
       "id": "move-55",
